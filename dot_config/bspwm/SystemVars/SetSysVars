@@ -1,0 +1,60 @@
+#!/usr/bin/env bash
+
+# Create system.ini template
+SFILE="$HOME/.config/bspwm/SystemVars/system.ini"
+
+if [[ ! -f "$SFILE" ]]; then
+	touch "$SFILE"
+	chmod a+rwx "$SFILE"
+
+	cat > $SFILE << EOF
+;  ╔═╗╦ ╦╔═╗╔╦╗╔═╗╔╦╗  ╦  ╦╔═╗╦═╗╦╔═╗╔╗ ╦  ╔═╗╔═╗
+;  ╚═╗╚╦╝╚═╗ ║ ║╣ ║║║  ╚╗╔╝╠═╣╠╦╝║╠═╣╠╩╗║  ║╣ ╚═╗
+;  ╚═╝ ╩ ╚═╝ ╩ ╚═╝╩ ╩   ╚╝ ╩ ╩╩╚═╩╩ ╩╚═╝╩═╝╚═╝╚═╝
+; The variables for the polybar modules, bspwmrc are taken from this file.
+
+;; Edit according to your system
+;; Run "ls -1 /sys/class/power_supply/" to list list adapters and batteries.
+;; Run "ls -1 /sys/class/backlight/" to list available graphics cards.
+;; Run "ip link | awk '/state UP/ {print $2}' | tr -d :" to get active network interface.
+;; Run "xrandr | grep "connected primary" | awk '{print $1}'" to get the name of the currently connected primary monitor.
+;; Run "xrandr | grep "connected" | grep -v "primary" | awk '{print $1}'" to get the name of the external monitor.
+
+[system]
+sys_adapter = 
+sys_battery = 
+sys_graphics_card = 
+sys_network_interface = 
+internal_monitor = 
+external_monitor = 
+EOF
+
+fi
+
+function setup_system_vars() {
+	########## Get values ##########
+	ADAPTER=$(find /sys/class/power_supply -maxdepth 1 -type l -name "A[CD]*" | head -n1 | xargs basename)
+	BATTERY=$(find /sys/class/power_supply -maxdepth 1 -type l -name "BAT*" | head -n1 | xargs basename)
+
+	CARD=$(find /sys/class/backlight -maxdepth 1 -type l | head -n1 | xargs basename)
+
+	PRIMARY_NET=$(ip -o route get 1 | awk '{print $5; exit}')
+	#SECONDARY_NET=$(printf '%s\n' "${ALL_NET[@]}" | grep -v "$PRIMARY_NET" | head -n1)
+
+	INTERNAL_MONITOR=$(xrandr | grep "connected primary" | awk '{print $1}')
+	EXTERNAL_MONITOR=$(xrandr | grep "connected" | grep -v "primary" | awk '{print $1}')
+
+	########## Set values ##########
+	[[ -n "$ADAPTER" ]] && sed -i "s/sys_adapter = .*/sys_adapter = $ADAPTER/" "$SFILE"
+	[[ -n "$BATTERY" ]] && sed -i "s/sys_battery = .*/sys_battery = $BATTERY/" "$SFILE"
+
+	[[ -n "$CARD" ]] && sed -i "s/sys_graphics_card = .*/sys_graphics_card = $CARD/" "$SFILE"
+
+	[[ -n "$PRIMARY_NET" ]] && sed -i "s/sys_network_interface = .*/sys_network_interface = $PRIMARY_NET/" "$SFILE"
+	
+	[[ -n "$INTERNAL_MONITOR" ]] && sed -i "s/internal_monitor = .*/internal_monitor = $INTERNAL_MONITOR/" "$SFILE"
+	[[ -n "$EXTERNAL_MONITOR" ]] && sed -i "s/external_monitor = .*/external_monitor = $EXTERNAL_MONITOR/" "$SFILE"
+}
+
+# Run setup
+setup_system_vars

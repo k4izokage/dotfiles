@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+
+# Theme dir
+rice_folder="punk_records"
+rice_path="$HOME/.config/$rice_folder"
+
+# System info
+sysVars="$HOME/.config/bspwm/SystemVars/system.ini"
+
+# Current Rice
+read -r RICE < "$rice_path"/.rice
+
+# Polybar theme path
+poly_dir="$HOME/.config/polybar/${RICE}"
