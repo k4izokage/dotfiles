@@ -1,0 +1,17 @@
+(defwidget cal []
+  (box :class "cal-box"
+       :orientation "v"
+       :space-evenly false
+    (calendar :class "cal"
+              :day calendar_day
+              :month calendar_month
+              :year calendar_year
+  ))
+)
+
+;; Windows ;;
+(defwindow date
+  :geometry (geometry :y "15%"
+                      :anchor "top center")
+  :wm-ignore true
+(cal))
