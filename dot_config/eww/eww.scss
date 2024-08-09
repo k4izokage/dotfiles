@@ -1,0 +1,13 @@
+* {
+  all: unset;
+}
+
+tooltip {
+  background-color: #14171c;
+  color: #b8bfe5;
+  font-family: Inconsolata SemiCondensed Medium;
+  font-weight: Bold;
+  font-size: 1rem;
+}
+
+@import "colors.scss";
