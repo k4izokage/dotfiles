@@ -1,3 +1,17 @@
+;; Calendar ;;
 (defpoll calendar_day :interval "1s" "date '+%d'")
 (defpoll calendar_month :interval "1s" "date '+%m")
 (defpoll calendar_year :interval "1s" "date '+%Y'")
+
+;; Music player ;;
+(defpoll music-player		:interval "1s" "MediaControl --player")
+(defpoll music-art			:interval "1s" "MediaControl --cover")
+(defpoll music-title 		:interval "1s" "MediaControl --title")
+(defpoll music-artist 		:interval "1s" "MediaControl --artist")
+(defpoll music-status 		:interval "1s" "MediaControl --status")
+(defpoll music-position 	:interval "1s" "MediaControl --position")
+(defpoll music-positions	:interval "1s" "MediaControl --positions")
+(defpoll music-length 		:interval "1s" "MediaControl --length")
+(defpoll music-lengths 		:interval "1s" "MediaControl --lengths")
+(defpoll shuffle 			:interval "1s" "MediaControl --shuffle")
+(defpoll loop 				:interval "1s" "MediaControl --loop")

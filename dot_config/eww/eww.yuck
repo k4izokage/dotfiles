@@ -1,3 +1,4 @@
 (include "variables.yuck")
 (include "calendar/calendar.yuck")
 (include "powermenu/powermenu.yuck")
+(include "player/player.yuck")
