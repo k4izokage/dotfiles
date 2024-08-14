@@ -5,7 +5,7 @@
 			:onclick action
 			:style "color: ${color}"
 			:tooltip status
-			"󰒟"
+			shuffle-icon
 		)
 	)
 )
@@ -30,7 +30,7 @@
 			:halign "end"
 			:tooltip "Toggle Player" 
 			:onclick "MediaControl --toggle-player" 
-			"󰠳 "
+			change-player-icon
 		)
 	)
 )
@@ -43,7 +43,7 @@
 			:halign "start"
 			:tooltip "Close" 
 			:onclick "eww -c ~/.config/eww open --toggle music" 
-			"󰚌"
+			close-icon
 		)
 	)
 )
@@ -67,7 +67,7 @@
 						:spacing 10
 						(button 
 							:class {music-player != "spotify" ? "mpd-icon" : "spotify-icon"}
-							{music-player != "spotify" ? "󰌳 " : "󰓇 "}
+							{music-player != "spotify" ? mpd-icon : spotify-icon}
 						)
 						(shuffle
 							:action {music-player != "spotify" ? "mpc random" : "playerctl -p spotify shuffle toggle"}
@@ -79,8 +79,8 @@
 							loop == "Off" ? "mpc repeat on" :
 							loop == "On" ? "mpc repeat off" :
 							loop == "Playlist" ? "playerctl -p spotify loop track" : "playerctl -p spotify loop none"}
-							:icon  {loop == "Track" ? "󰑘" :
-							loop == "Playlist" || loop == "On" ? "󰑖" : "󰑗"}
+							:icon  {loop == "Track" ? loop-on-track-icon :
+							loop == "Playlist" || loop == "On" ? loop-on-playlist-icon : loop-off-icon}
 							:color {loop == "Playlist" || loop == "Track" || loop == "On" ? "#81ae5f" : "#b8bfe5"}
 							:status loop
 						)
@@ -154,7 +154,7 @@
 				(button 
 					:class "player-previous" 
 					:onclick "MediaControl --previous" 
-					"󰒮"
+					previous-icon
 				)
 			)
 			(eventbox
@@ -162,7 +162,7 @@
 				(button 
 					:class "player-toggle" 
 					:onclick "MediaControl --toggle" 
-					{music-status == "Playing" ? "󰏤" : music-status == "Paused" ? "󰐊" : "󰓛"}
+					{music-status == "Playing" ? playing-icon : music-status == "Paused" ? paused-icon : stopped-icon}
 				)
 			)
 			(eventbox
@@ -170,7 +170,7 @@
 				(button 
 					:class "player-next" 
 					:onclick "MediaControl --next" 
-					"󰒭"
+					next-icon
 				)
 			)
 		)		
