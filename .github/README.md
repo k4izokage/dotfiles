@@ -32,6 +32,7 @@
 </div>
 
 > [!CAUTION]
+> - Specific for [Arch](https://archlinux.org/) Linux, and based distros. Ensure that you are fully aware of what you're doing.
 > - These dotfiles are still a work in progress. Please open an issue for queries beyond its scope.
 > - All the visual config parameters have been written for a [resolution](https://wiki.archlinux.org/title/Xrandr) of 1366x768 pixels.
 
@@ -74,8 +75,27 @@
 My configuration is personalized to utilize keyboard shortcuts as well as mouse actions to keep my workflow meaningful and flexible under varying conditions.
 
 ## 📥 Installation
+<b>Open a terminal in HOME</b>
+- **First, download the installer**
+```sh
+curl https://raw.githubusercontent.com/k4izokage/dotfiles/main/RiceInstaller -o $HOME/RiceInstaller
+
+# Maybe you want a short URL??
+
+curl -L https://is.gd/k4izokage_dotfiles -o $HOME/RiceInstaller
+```
+- **Give it execute permissions**
+```sh
+chmod +x RiceInstaller
+```
+- **Finally, run the installer**
+```sh
+./RiceInstaller
+```
 
 ## 📌 Credits
+- [gh0stzk](https://github.com/gh0stzk/) - The world of limitless customization with gh0stzk's dotfiles (a unique and exciting experience with 10+ different themes, each featuring captivating color schemes, styles and personality.)
+
 
 <!-- Links -->
 [shaka_bar]: https://raw.githubusercontent.com/k4izokage/dotfiles/refs/heads/main/.github/assets/bar/shaka.webp
