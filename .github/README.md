@@ -1,14 +1,43 @@
-<h1 align="center">✨ Dotfiles</h1>
+<h1 align="center">🌾 Dotfiles 🍚</h1>
+<div align="center">
+  
+[![Github stargazers](https://img.shields.io/github/stars/k4izokage/dotfiles?color=e3b341&label=Stargazers&logo=github)](https://github.com/k4izokage/dotfiles/stargazers)
+&ensp;
+[![GitHub last commit (by committer)](https://img.shields.io/github/last-commit/k4izokage/dotfiles?color=79dcaa&label=Last%20commit&logo=git&logoColor=ffffff)](https://github.com/k4izokage/dotfiles/commits/master)
+&ensp;
+[![GitHub open issues](https://img.shields.io/github/issues/k4izokage/dotfiles?color=e05f65&label=Issues&logo=flatpak&logoColor=ffffff)](https://github.com/k4izokage/dotfiles/issues)
+&ensp;
+[![GitHub forks](https://img.shields.io/github/forks/k4izokage/dotfiles?style=social)](https://github.com/k4izokage/dotfiles/network/members)
+
+</div>
 
 ## 🌿 Information
 
-> [!CAUTION]
-> - This setup is specific for [Arch](https://archlinux.org/). Dont install it if you don't know what you're doing.
-> - Configured for 1366x768 resolution at 96 DPI. They may not display perfectly on other resolutions.
+<div align="center">
+  
+|Feature|Package|
+|:---:|:---:|
+|Window Manager|[bspwm](https://github.com/baskerville/bspwm)|
+|Compositor|[picom](https://archlinux.org/packages/community/x86_64/picom/)|
+|App Launcher|[rofi](https://github.com/davatorium/rofi)|
+|Context Menu|[jgmenu](https://github.com/jgmenu/jgmenu)|
+|Bar|[polybar](https://github.com/polybar/polybar)|
+|Widgets|[eww](https://github.com/elkowar/eww)|
+|File Manager|[ranger](https://github.com/ranger/ranger)|
+|Music/Player|[ncmpcpp](https://archlinux.org/packages/community/x86_64/ncmpcpp/), [spicetify](https://spicetify.app/)|
+|Terminal|[alacritty](https://github.com/alacritty/alacritty)|
+|Shell|[zsh](https://archlinux.org/packages/extra/x86_64/zsh/)|
+|Editor|[neovim](https://github.com/neovim/neovim), [vscode](https://code.visualstudio.com/)| 
 
-## 📷 Showcase
+</div>
+
+> [!CAUTION]
+> - These dotfiles are still a work in progress. Please open an issue for queries beyond its scope.
+> - All the visual config parameters have been written for a [resolution](https://wiki.archlinux.org/title/Xrandr) of 1366x768 pixels.
+
+## ✨ Showcase
 <details>
-<summary><b> 🚥 Polybar / Eww </b></summary>
+<summary><b> 🚥 Polybar / Eww bar</b></summary>
 
 |![Shaka][shaka_bar]|![Lilith][lilith_bar]|![Edison][edison_bar]|![Pythagoras][pythagoras_bar]|
 |:-:|:-:|:-:|:-:|
@@ -20,11 +49,33 @@
 
 </details>
 
+<details>
+<summary><b> 👽 Widgets</b></summary>
+<div align="center">
+  
+|📆 Calendar|
+|:-:|
+|![Calendar](./assets/eww/calendar.webp)|
+
+|🎧 Music player|
+|:-:|
+|![Music player](./assets/eww/music_player.gif)|
+
+|🔒 Power menu|
+|:-:|
+|![Power menu](./assets/eww/powermenu.webp)|
+
+</div>
+
+</details>
+
 ## ⌨️ Keybindings
 
-## 📦 Installation
+My configuration is personalized to utilize keyboard shortcuts as well as mouse actions to keep my workflow meaningful and flexible under varying conditions.
 
-## 🔗 Credits
+## 📥 Installation
+
+## 📌 Credits
 
 <!-- Links -->
 [shaka_bar]: https://raw.githubusercontent.com/k4izokage/dotfiles/refs/heads/main/.github/assets/bar/shaka.webp
