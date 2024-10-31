@@ -74,7 +74,7 @@ bspc config pointer_motion_interval       5
 pidof -q sxhkd || { sxhkd -c "${HOME}"/.config/bspwm/sxhkdrc & }
 
 # Launch picom
-pidof -q picom || { picom --config "${HOME}"/.config/picom.conf & }
+pidof -q picom || { picom --config "${HOME}"/.config/picom/picom.conf & }
 
 # Launch eww daemon
 pidof -q eww || { eww -c "${HOME}"/.config/eww daemon & }
