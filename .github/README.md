@@ -39,6 +39,7 @@
 ## ✨ Showcase
 <details>
 <summary><b> 🚥 Polybar / Eww bar</b></summary>
+<br>
 
 |![Shaka][shaka_bar]|![Lilith][lilith_bar]|![Edison][edison_bar]|![Pythagoras][pythagoras_bar]|
 |:-:|:-:|:-:|:-:|
@@ -52,19 +53,14 @@
 
 <details>
 <summary><b> 👽 Widgets</b></summary>
+<br>
+  
 <div align="center">
   
-|📆 Calendar|
-|:-:|
-|![Calendar](./assets/eww/calendar.webp)|
+|📆 Calendar|🔒 Power menu|🎧 Music player|
+|:-:|:-:|:-:|
+|![Calendar](./assets/eww/calendar.webp)|![Power menu](./assets/eww/powermenu.webp)|![Music player](./assets/eww/music_player.gif)|
 
-|🎧 Music player|
-|:-:|
-|![Music player](./assets/eww/music_player.gif)|
-
-|🔒 Power menu|
-|:-:|
-|![Power menu](./assets/eww/powermenu.webp)|
 
 </div>
 
