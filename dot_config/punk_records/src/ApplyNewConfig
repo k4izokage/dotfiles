@@ -1,0 +1,181 @@
+#!/usr/bin/env bash
+
+# Retrieve 'path' variables (lowercase)
+source "${HOME}"/.config/bspwm/SystemVars/EnvVars
+
+# Retrieve 'value' variables (UPPERCASE)
+source "$rice_path"/rices/"${RICE}"/Theme
+
+############################################################
+
+# Set bspwm configuration
+set_bspwm_config() {
+    bspc config border_width ${BORDER_WIDTH}
+    bspc config top_padding ${PAD_TOP}
+    bspc config bottom_padding ${PAD_BOTTOM}
+    bspc config left_padding ${PAD_LEFT}
+    bspc config right_padding ${PAD_RIGHT}
+    bspc config normal_border_color "${NORMAL_BC}"
+    bspc config focused_border_color "${FOCUSED_BC}"
+    bspc config presel_feedback_color "${PRESEL_FEEDBACK_COLOR}"
+
+}
+
+# Terminal configuration
+set_term_config() {
+    # Opacity
+    sed -i "$alacritty_conf" \
+        -e "s/opacity = .*/opacity = $ALC_OPACITY/g" \
+
+    # Font
+    cat > "$alacritty_font_conf" << EOF
+[font]
+size = $ALC_FONT_SIZE
+
+builtin_box_drawing = true
+
+normal = { family = "$ALC_FONT_FAMILY", style = "Regular" }
+bold = { family = "$ALC_FONT_FAMILY", style = "Bold" }
+italic = { family = "$ALC_FONT_FAMILY", style = "Italic" }
+bold_italic = { family = "$ALC_FONT_FAMILY", style = "Bold Italic" }
+EOF
+
+    # Colorscheme
+    cat > "$alacritty_color_conf" << EOF
+# Default colors
+[colors.primary]
+background = "${BG}"
+foreground = "${FG}"
+
+# Cursor colors
+[colors.cursor]
+cursor = "${CURSOR}"
+text = "${TEXT}"
+
+# Normal colors
+[colors.normal]
+black = "${BLACK}"
+red = "${RED}"
+green = "${GREEN}"
+yellow = "${YELLOW}"
+blue =  "${BLUE}"
+magenta = "${MAGENTA}"
+cyan = "${CYAN}"
+white = "${WHITE}"
+
+# Bright colors
+[colors.bright]
+black = "${BLACKB}"
+red = "${REDB}"
+green = "${GREENB}"
+yellow = "${YELLOWB}"
+blue = "${BLUEB}"
+magenta = "${MAGENTAB}"
+cyan = "${CYANB}"
+white = "${WHITEB}"
+EOF
+}
+
+# Set compositor configuration
+set_picom_config() {
+	sed -i "$picom_conf_file" \
+		-e "s/shadow = .*/shadow = ${P_SHADOW};/" \
+		-e "s/shadow-color = .*/shadow-color = \"${SHADOW_COLOR}\"/" \
+		-e "s/fading = .*/fading = ${P_FADE};/" \
+		-e "s/corner-radius = .*/corner-radius = ${P_CORNER_RADIUS}/"
+
+	sed -i "$picom_rules_file" \
+		-e "95s/	opacity = .*/	opacity = 1;/"
+
+	if [[ "$ANIMATION" = "true" ]]; then
+		sed -i "$picom_rules_file" \
+			-e '/picom-animations/c\@include "picom-animations.conf"'
+	else
+		sed -i "$picom_rules_file" \
+			-e '/picom-animations/c\#@include "picom-animations.conf"'
+	fi
+}
+
+# Set dunst notification daemon config
+set_dunst_config() {
+    sed -i "$dunst_config_file" \
+        -e "s/transparency = .*/transparency = ${D_TRANSPARENCY}/g" \
+        -e "s/frame_color = .*/frame_color = \"${D_FRAME_COLOR}\"/g" \
+        -e "s/separator_color = .*/separator_color = \"${D_SEPARATOR_COLOR}\"/g" \
+        -e "s/font = .*/font = ${DUNST_FONT}/g" \
+        -e "s/foreground='.*'/foreground='${DUNST_FG}'/g"
+
+    sed -i '/urgency_low/Q' "$dunst_config_file"
+    cat >> "$dunst_config_file" <<- _EOF_
+		[urgency_low]
+		timeout = 3
+		background = "${BG}"
+		foreground = "${GREEN}"
+
+		[urgency_normal]
+		timeout = 5
+		background = "${BG}"
+		foreground = "${WHITE}"
+
+		[urgency_critical]
+		timeout = 0
+		background = "${BG}"
+		foreground = "${RED}"
+_EOF_
+}
+
+set_eww_colors() {
+    cat > "$eww_color_file" << EOF
+\$bg: ${BG};
+\$bg-alt: ${BGALT};
+\$fg: ${FG};
+\$black: ${BLACKB};
+\$gray: ${GRAY};
+\$red: ${RED};
+\$green: ${GREEN};
+\$yellow: ${YELLOW};
+\$blue: ${BLUE};
+\$magenta: ${MAGENTA};
+\$cyan: ${CYAN};
+\$archicon: ${ARCHICON};
+EOF
+}
+
+set_jgmenu_config() {
+	sed -i "$jgmenu_conf_file" \
+		-e "s/color_menu_bg = .*/color_menu_bg = ${J_MENU_BGC}/" \
+		-e "s/color_norm_fg = .*/color_norm_fg = ${J_NORM_FGC}/" \
+		-e "s/color_sel_bg = .*/color_sel_bg = ${J_SEL_BGC}/" \
+		-e "s/color_sel_fg = .*/color_sel_fg = ${J_SEL_FGC}/" \
+		-e "s/color_sep_fg = .*/color_sep_fg = ${J_SEP_FG}/"
+}
+
+launch_theme() {
+    # Launch dunst notification daemon
+	dunst -config $dunst_config_file &
+
+    # Launch polybar
+	for mon in $(polybar --list-monitors | cut -d":" -f1); do
+        for module in "${POLYBAR_MODULES[@]}"; do
+            (MONITOR=$mon polybar -q "$module" -c "${poly_dir}/config.ini")&
+        done
+    done
+}
+
+##########################################
+#           Apply Configurations         #
+##########################################
+
+# Terminate existing processes if necessary.
+. "${rice_path}"/src/RefreshProcess
+
+# Apply new "bspwm, terminal, picom, dunst, eww, jgmenu" configurations
+set_bspwm_config
+set_term_config
+set_picom_config
+set_dunst_config
+set_eww_colors
+set_jgmenu_config
+
+# Launch_theme
+launch_theme
