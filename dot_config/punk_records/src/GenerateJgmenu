@@ -2,7 +2,7 @@
 
 # Retrieve the $rice_path variable with a custom directory name 
 # when installing dotfiles using my RiceInstaller script.
-source "${HOME}"/.config/bspwm/SystemVars/EnvVars
+source "${HOME}"/.config/Poneglyph
 
 Menu="$HOME/.config/jgmenu/menu.csv"
 

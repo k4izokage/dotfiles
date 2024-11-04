@@ -35,6 +35,9 @@ ARCHICON="#0f94d2"
 #           Bspwm          #
 ############################
 
+# Window gap
+WINDOW_GAP="2"
+
 # Bspwm border		
 BORDER_WIDTH="2"
 

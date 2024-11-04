@@ -1,0 +1,52 @@
+#!/usr/bin/env bash
+
+source "${HOME}"/.config/Poneglyph
+
+# Create system.ini
+if [[ ! -f "$sys_vars_file" ]]; then
+	touch "$sys_vars_file"
+	chmod a+rwx "$sys_vars_file"
+
+	cat > $sys_vars_file << EOF
+;  ╔═╗╦ ╦╔═╗╔╦╗╔═╗╔╦╗  ╦  ╦╔═╗╦═╗╦╔═╗╔╗ ╦  ╔═╗╔═╗
+;  ╚═╗╚╦╝╚═╗ ║ ║╣ ║║║  ╚╗╔╝╠═╣╠╦╝║╠═╣╠╩╗║  ║╣ ╚═╗
+;  ╚═╝ ╩ ╚═╝ ╩ ╚═╝╩ ╩   ╚╝ ╩ ╩╩╚═╩╩ ╩╚═╝╩═╝╚═╝╚═╝
+; The variables for the polybar modules are taken from this file.
+
+;; Edit according to your system
+;; Run "ls -1 /sys/class/power_supply/" to list list adapters and batteries.
+;; Run "ls -1 /sys/class/backlight/" to list available graphics cards.
+;; Run "ip link | awk '/state UP/ {print $2}' | tr -d :" to get active network interface.
+
+[system]
+sys_adapter = 
+sys_battery = 
+sys_graphics_card = 
+sys_network_interface =  
+; sys_network_interface2 = 
+EOF
+
+fi
+
+function setup_system_vars() {
+	########## Get values ##########
+	ADAPTER=$(find /sys/class/power_supply -maxdepth 1 -type l -name "A[CD]*" | head -n1 | xargs basename)
+	BATTERY=$(find /sys/class/power_supply -maxdepth 1 -type l -name "BAT*" | head -n1 | xargs basename)
+
+	CARD=$(find /sys/class/backlight -maxdepth 1 -type l | head -n1 | xargs basename)
+
+	PRIMARY_NET=$(ip -o route get 1 | awk '{print $5; exit}')
+	#SECONDARY_NET=$(printf '%s\n' "${ALL_NET[@]}" | grep -v "$PRIMARY_NET" | head -n1)
+
+	########## Set values ##########
+	[[ -n "$ADAPTER" ]] && sed -i "s/sys_adapter = .*/sys_adapter = $ADAPTER/" "$CONFIG_FILE"
+	[[ -n "$BATTERY" ]] && sed -i "s/sys_battery = .*/sys_battery = $BATTERY/" "$CONFIG_FILE"
+
+	[[ -n "$CARD" ]] && sed -i "s/sys_graphics_card = .*/sys_graphics_card = $CARD/" "$CONFIG_FILE"
+
+	[[ -n "$PRIMARY_NET" ]] && sed -i "s/sys_network_interface = .*/sys_network_interface = $PRIMARY_NET/" "$CONFIG_FILE"
+	# [[ -n "$SECONDARY_NET" ]] && sed -i "s/sys_network_interface2 = .*/sys_network_interface2 = $SECONDARY_NET/" "$CONFIG_FILE"
+}
+
+# Run setup
+setup_system_vars

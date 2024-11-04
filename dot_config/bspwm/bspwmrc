@@ -9,8 +9,8 @@
 
 ########### Def vars ###########
 
-# Retrieve the $rice_path, $RICE and $sysVars variables
-source "${HOME}"/.config/bspwm/SystemVars/EnvVars
+# Retrieve the $rice_path variables
+source "${HOME}"/.config/Poneglyph
 
 # Set environment variables
 export PATH="$rice_path/src:$PATH"
@@ -23,10 +23,11 @@ export _JAVA_AWT_WM_NONREPARENTING=1
 #  ║║║║ ║╠╦╝╠╩╗╚═╗╠═╝╠═╣║  ║╣ ╚═╗
 #  ╚╩╝╚═╝╩╚═╩ ╩╚═╝╩  ╩ ╩╚═╝╚═╝╚═╝
 
-# change these values according to your system
-# get the name of monitors from system.ini or you can use `xrandr -q`
-INTERNAL_MONITOR=$(sed -n 's/^internal_monitor *= *//p' $sysVars)
-EXTERNAL_MONITOR=$(sed -n 's/^external_monitor *= *//p' $sysVars)
+# Get the name of the primary monitor
+INTERNAL_MONITOR=$(xrandr | grep "connected primary" | awk '{print $1}')
+# Get the list of connected monitors excluding the primary monitor
+EXTERNAL_MONITOR=$(xrandr | grep "connected" | grep -v "primary" | awk '{print $1}')
+
 if [[ $(xrandr -q | grep "${EXTERNAL_MONITOR} connected") ]]; then
 	bspc monitor "$INTERNAL_MONITOR" -d '1' '2' '3' '4' '5' '6' '7' '8' 
 	bspc monitor "$EXTERNAL_MONITOR" -d '1' '2' '3' '4' '5' '6' '7' '8' 
@@ -41,7 +42,6 @@ fi
 
 bspc config external_rules_command "${HOME}"/.config/bspwm/external_rules
 
-bspc config window_gap                    6
 bspc config split_ratio                   0.5
 bspc config single_monocle                true
 bspc config borderless_monocle            false
@@ -65,10 +65,10 @@ bspc config pointer_motion_interval       5
 #  ╩ ╩╚═╝ ╩ ╚═╝╚═╝ ╩ ╩ ╩╩╚═ ╩
 
 # Set system vars
-"${HOME}"/.config/bspwm/SystemVars/SetSysVars
+"${rice_path}"/src/SetSysVars
 
 # Load current theme
-"${rice_path}"/rices/"${RICE}"/Theme.sh
+"${rice_path}"/src/ApplyNewConfig
 
 # Launch sxhkd daemon
 pidof -q sxhkd || { sxhkd -c "${HOME}"/.config/bspwm/sxhkdrc & }

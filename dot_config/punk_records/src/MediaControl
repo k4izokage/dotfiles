@@ -12,7 +12,7 @@
 # "stop, pause, play, next, previous" of different players like
 # spotify, ncmpcpp, clementine, strawberry and others.
 
-source "${HOME}"/.config/bspwm/SystemVars/EnvVars
+source "${HOME}"/.config/Poneglyph
 
 # Here the cover image will be saved.
 Cover=/tmp/cover.png

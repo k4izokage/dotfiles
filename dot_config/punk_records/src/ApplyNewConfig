@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # Retrieve 'path' variables (lowercase)
-source "${HOME}"/.config/bspwm/SystemVars/EnvVars
+source "${HOME}"/.config/Poneglyph
 
 # Retrieve 'value' variables (UPPERCASE)
 source "$rice_path"/rices/"${RICE}"/Theme
@@ -10,6 +10,7 @@ source "$rice_path"/rices/"${RICE}"/Theme
 
 # Set bspwm configuration
 set_bspwm_config() {
+	bspc config window_gap ${WINDOW_GAP}
     bspc config border_width ${BORDER_WIDTH}
     bspc config top_padding ${PAD_TOP}
     bspc config bottom_padding ${PAD_BOTTOM}
@@ -98,7 +99,11 @@ set_picom_config() {
 
 # Set dunst notification daemon config
 set_dunst_config() {
+	local OFFSET_TOP=$((BORDER_WIDTH + PAD_TOP + WINDOW_GAP))
+    local OFFSET_RIGHT=$((BORDER_WIDTH + PAD_RIGHT + WINDOW_GAP))
+
     sed -i "$dunst_config_file" \
+		-e "s/offset = .*/offset = ${OFFSET_RIGHT}x${OFFSET_TOP}"/g \
         -e "s/transparency = .*/transparency = ${D_TRANSPARENCY}/g" \
         -e "s/frame_color = .*/frame_color = \"${D_FRAME_COLOR}\"/g" \
         -e "s/separator_color = .*/separator_color = \"${D_SEPARATOR_COLOR}\"/g" \

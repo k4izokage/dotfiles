@@ -1,5 +1,5 @@
 # Retrieve the $rice_path, $RICE variable
-source "${HOME}"/.config/bspwm/SystemVars/EnvVars
+source "${HOME}"/.config/Poneglyph
 
 #	From here the processes necessary to be terminated or reloaded, when
 #	you change the theme.
