@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 
-source "${HOME}"/.config/Poneglyph
+CONFIG_FILE="$HOME/.config/polybar/system.ini"
 
 # Create system.ini
-if [[ ! -f "$sys_vars_file" ]]; then
-	touch "$sys_vars_file"
-	chmod a+rwx "$sys_vars_file"
+if [[ ! -f "$CONFIG_FILE" ]]; then
+	touch "$CONFIG_FILE"
+	chmod a+rwx "$CONFIG_FILE"
 
-	cat > $sys_vars_file << EOF
+	cat > $CONFIG_FILE << EOF
 ;  ╔═╗╦ ╦╔═╗╔╦╗╔═╗╔╦╗  ╦  ╦╔═╗╦═╗╦╔═╗╔╗ ╦  ╔═╗╔═╗
 ;  ╚═╗╚╦╝╚═╗ ║ ║╣ ║║║  ╚╗╔╝╠═╣╠╦╝║╠═╣╠╩╗║  ║╣ ╚═╗
 ;  ╚═╝ ╩ ╚═╝ ╩ ╚═╝╩ ╩   ╚╝ ╩ ╩╩╚═╩╩ ╩╚═╝╩═╝╚═╝╚═╝
