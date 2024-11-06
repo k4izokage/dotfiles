@@ -12,7 +12,11 @@
 # "stop, pause, play, next, previous" of different players like
 # spotify, ncmpcpp, clementine, strawberry and others.
 
+############### Def Variables ###############
 source "${HOME}"/.config/Poneglyph
+
+# Current source audio player
+current_player="spotify"
 
 # Here the cover image will be saved.
 Cover=/tmp/cover.png
@@ -25,6 +29,67 @@ mpddir=~/Music
 # Get last song name
 LAST_SONG_FILE="/tmp/last_song.txt"
 
+############### Def Functions ###############
+# Toggle the source audio player
+# Call the function with the desired options, example:
+# toggle_player "MPD" "Spotify" "playerctld"
+toggle_player() {
+    # Stop current player
+    MediaControl --pause
+
+    # Find the current position of the current_control value in the `players` array
+    # and calculate the index of the next value
+    local players=("$@")
+    for i in "${!players[@]}"; do
+        if [ "${players[$i]}" = "$current_player" ]; then
+            index=$i
+            break
+        fi
+    done
+    next_index=$(( (index + 1) % ${#players[@]} ))
+    next_value="${players[$next_index]}"
+
+    # Update the value of current_control in the file
+    sed -i "s/current_player=\"$current_player\"/current_player=\"$next_value\"/" $rice_path/src/MediaControl
+
+    MediaControl --play
+}
+
+# Handle MPRIS (Spotify) spec cover art extraction
+extract_spotify_cover_art() {
+    current_song="$(playerctl --player="$current_player" metadata --format '{{title}}-{{artist}}')"
+    last_song=""
+    [ -f "$LAST_SONG_FILE" ] && last_song=$(cat "$LAST_SONG_FILE")
+
+    if [ "$current_song" != "$last_song" ] || [ ! -f "$Cover" ]; then
+        albumart="$(playerctl --player="$current_player" metadata mpris:artUrl | sed -e 's/open.spotify.com/i.scdn.co/g')"
+        if [[ $(playerctl --player="$current_player" metadata mpris:artUrl) ]]; then
+            curl -s "$albumart" --output $Cover
+        else
+            cp $bkpCover $Cover
+        fi
+    echo "$current_song" > "$LAST_SONG_FILE"
+    fi
+
+    echo "$Cover"
+}
+
+# Handle MPD cover art extraction
+extract_mpd_cover_art() {
+    current_song=$(mpc current -f "%title%-%artist%")
+    last_song=""
+    [ -f "$LAST_SONG_FILE" ] && last_song=$(cat "$LAST_SONG_FILE")
+
+    if [ "$current_song" != "$last_song" ] || [ ! -f "$Cover" ]; then
+        ffmpeg -i "$mpddir/$(mpc current -f %file%)" "${Cover}" -y &> /dev/null || cp $bkpCover $Cover
+        echo "$current_song" > "$LAST_SONG_FILE"
+    fi
+
+    echo "$Cover"
+}
+
+#############################################
+
 case $current_player in
     MPD)
         case $1 in
@@ -33,6 +98,12 @@ case $current_player in
                 ;;
             --previous)
                 mpc -q prev
+                ;;
+            --play)
+                mpc -q play
+                ;;
+            --pause)
+                mpc -q pause
                 ;;
             --toggle)
                 mpc -q toggle
@@ -56,17 +127,7 @@ case $current_player in
                 echo "$current_player"
                 ;;
             --cover)
-                current_song=$(mpc current -f "%title%-%artist%")
-				last_song=""
-				[ -f "$LAST_SONG_FILE" ] && last_song=$(cat "$LAST_SONG_FILE")
-    
-				if [ "$current_song" != "$last_song" ] || [ ! -f "$Cover" ]; then
-					ffmpeg -i "$mpddir/$(mpc current -f %file%)" "${Cover}" -y &> /dev/null || cp $bkpCover $Cover
-					echo "$current_song" > "$LAST_SONG_FILE"
-				fi
-    
-				echo "$Cover"
-                ;;
+                extract_mpd_cover_art ;;
             --nccover)
                 ffmpeg -i "$mpddir"/"$(mpc current -f %file%)" "${Cover}" -y &> /dev/null || cp $bkpCover $Cover
                 ;;
@@ -95,9 +156,7 @@ case $current_player in
                 echo "${loop:-Off}"
                 ;;
             --toggle-player)
-                MediaControl --stop
                 toggle_player "MPD" "spotify"
-                MediaControl --toggle
                 ;;
         esac
         ;;
@@ -108,6 +167,12 @@ case $current_player in
                 ;;
             --previous)
                 playerctl --player="$current_player" previous
+                ;;
+            --play)
+                playerctl --player="$current_player" play
+                ;;
+            --pause)
+                playerctl --player="$current_player" pause
                 ;;
             --toggle)
                 playerctl --player="$current_player" play-pause
@@ -131,22 +196,7 @@ case $current_player in
                 echo "$current_player"
                 ;;
             --cover)
-                current_song="$(playerctl --player="$current_player" metadata --format '{{title}}-{{artist}}')"
-				last_song=""
-				[ -f "$LAST_SONG_FILE" ] && last_song=$(cat "$LAST_SONG_FILE")
-    
-				if [ "$current_song" != "$last_song" ] || [ ! -f "$Cover" ]; then
-					albumart="$(playerctl --player="$current_player" metadata mpris:artUrl | sed -e 's/open.spotify.com/i.scdn.co/g')"
-					if [[ $(playerctl --player="$current_player" metadata mpris:artUrl) ]]; then
-						curl -s "$albumart" --output $Cover
-					else
-						cp $bkpCover $Cover
-					fi
-				echo "$current_song" > "$LAST_SONG_FILE"
-				fi
-    
-				echo "$Cover"
-                ;;
+                extract_spotify_cover_art ;;
             --position)
                 position=$(playerctl --player="$current_player" position --format "{{ duration(position) }}")
                 echo "${position:-0:00}"
@@ -172,9 +222,7 @@ case $current_player in
                 echo "${loop:-None}"
                 ;;
             --toggle-player)
-                MediaControl --stop
                 toggle_player "MPD" "spotify"
-                MediaControl --toggle
                 ;;
         esac
 esac 2>/dev/null
