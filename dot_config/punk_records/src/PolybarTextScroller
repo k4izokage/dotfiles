@@ -1,0 +1,19 @@
+#!/bin/bash
+
+# Check if zscroll is installed
+# https://github.com/noctuid/zscroll
+if ! command -v zscroll &> /dev/null; then
+    echo "Error: zscroll is not installed."
+    exit 1
+fi
+
+# See man zscroll for documentation of the following parameters
+zscroll -l 30 \
+    --delay 0.1 \
+    --scroll-padding "           " \
+    --match-command "MusicControl --get-player-status" \
+    --match-text "Playing" "--scroll 1" \
+    --match-text "Paused" "--scroll 0" \
+    --update-check true "MusicControl --get-player-status" &
+
+wait

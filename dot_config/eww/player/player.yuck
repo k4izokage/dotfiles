@@ -29,7 +29,7 @@
 			:class "actions toggle-player-btn" 
 			:halign "end"
 			:tooltip "Toggle Player" 
-			:onclick "MediaControl --toggle-player" 
+			:onclick "MusicControl --toggle-player" 
 			change-player-icon
 		)
 	)
@@ -153,7 +153,7 @@
 				:cursor "pointer"
 				(button 
 					:class "player-previous" 
-					:onclick "MediaControl --previous" 
+					:onclick "MusicControl --previous" 
 					previous-icon
 				)
 			)
@@ -161,7 +161,7 @@
 				:cursor "pointer"
 				(button 
 					:class "player-toggle" 
-					:onclick "MediaControl --toggle" 
+					:onclick "MusicControl --toggle" 
 					{music-status == "Playing" ? playing-icon : music-status == "Paused" ? paused-icon : stopped-icon}
 				)
 			)
@@ -169,7 +169,7 @@
 				:cursor "pointer"
 				(button 
 					:class "player-next" 
-					:onclick "MediaControl --next" 
+					:onclick "MusicControl --next" 
 					next-icon
 				)
 			)

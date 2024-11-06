@@ -15,9 +15,6 @@
 ############### Def Variables ###############
 source "${HOME}"/.config/Poneglyph
 
-# Current source audio player
-current_player="spotify"
-
 # Here the cover image will be saved.
 Cover=/tmp/cover.png
 # if cover not found in metadata use this instead
@@ -29,13 +26,18 @@ mpddir=~/Music
 # Get last song name
 LAST_SONG_FILE="/tmp/last_song.txt"
 
+# The name of polybar bar which houses the main spotify module and the control modules.
+# PARENT_BAR="now-playing"
+# PARENT_BAR_PID=$(pgrep -a "polybar" | grep "$PARENT_BAR" | cut -d" " -f1)
+PARENT_BAR_PID=$(pgrep -a "polybar" | cut -d" " -f1)
+
 ############### Def Functions ###############
 # Toggle the source audio player
 # Call the function with the desired options, example:
 # toggle_player "MPD" "Spotify" "playerctld"
 toggle_player() {
     # Stop current player
-    MediaControl --pause
+    MusicControl --pause
 
     # Find the current position of the current_control value in the `players` array
     # and calculate the index of the next value
@@ -50,9 +52,9 @@ toggle_player() {
     next_value="${players[$next_index]}"
 
     # Update the value of current_control in the file
-    sed -i "s/current_player=\"$current_player\"/current_player=\"$next_value\"/" $rice_path/src/MediaControl
+    sed -i "s/current_player=\"$current_player\"/current_player=\"$next_value\"/" "${HOME}"/.config/Poneglyph
 
-    MediaControl --play
+    MusicControl --play
 }
 
 # Handle MPRIS (Spotify) spec cover art extraction
@@ -88,29 +90,44 @@ extract_mpd_cover_art() {
     echo "$Cover"
 }
 
-#############################################
+# Sends $action as message to all polybar PIDs that are part of $pids
+update_hooks() {
+    local pids="$1"
+    local action="$2"
+    while IFS= read -r id; do
+        polybar-msg -p "$id" hook music-toggle "$action" 1>/dev/null 2>&1
+    done < <(echo "$pids")
+}
+
+get_player_status() {
+    PLAYER_STATUS=$(MusicControl --status 2>/dev/null)
+    case "$PLAYER_STATUS" in
+        "Stopped")
+            echo "No music is playing" ;;
+        "Paused") 
+            update_hooks "$PARENT_BAR_PID" 2
+            MusicControl --current-track
+            ;;
+        "Playing")
+            update_hooks "$PARENT_BAR_PID" 1
+            MusicControl --current-track
+            ;;
+        *)
+            echo "No player is running";;
+    esac
+}
+
+#######################################################
 
 case $current_player in
     MPD)
         case $1 in
-            --next)
-                mpc -q next
-                ;;
-            --previous)
-                mpc -q prev
-                ;;
-            --play)
-                mpc -q play
-                ;;
-            --pause)
-                mpc -q pause
-                ;;
-            --toggle)
-                mpc -q toggle
-                ;;
-            --stop)
-                mpc -q stop
-                ;;
+            --next) mpc -q next ;;
+            --previous) mpc -q prev ;;
+            --play) mpc -q play ;;
+            --pause) mpc -q pause ;;
+            --toggle) mpc -q toggle ;;
+            --stop) mpc -q stop ;;
             --title)
                 title=$(mpc -f %title% current)
                 echo "${title:-Play Something}"
@@ -119,18 +136,14 @@ case $current_player in
                 artist=$(mpc -f %artist% current)
                 echo "${artist:-No Artist}"
                 ;;
+            --current-track) mpc -f "%title% - %artist%" current ;;
             --status)
                 status=$(mpc status | head -2 | tail -1 | cut -c2-8 | sed 's/]//g' | sed 's/./\U&/')
                 echo "${status:-Stopped}"
                 ;;
-            --player)
-                echo "$current_player"
-                ;;
-            --cover)
-                extract_mpd_cover_art ;;
-            --nccover)
-                ffmpeg -i "$mpddir"/"$(mpc current -f %file%)" "${Cover}" -y &> /dev/null || cp $bkpCover $Cover
-                ;;
+            --player) echo "$current_player" ;;
+            --cover) extract_mpd_cover_art ;;
+            --nccover) ffmpeg -i "$mpddir"/"$(mpc current -f %file%)" "${Cover}" -y &> /dev/null || cp $bkpCover $Cover ;;
             --position)
                 position=$(mpc status %currenttime%)
                 echo "${position:-0:00}"
@@ -155,31 +168,18 @@ case $current_player in
                 loop=$(mpc status | sed -n '3s/.*repeat: \([^ ]*\).*/\1/p' | sed 's/.*/\u&/')
                 echo "${loop:-Off}"
                 ;;
-            --toggle-player)
-                toggle_player "MPD" "spotify"
-                ;;
+            --toggle-player) toggle_player "MPD" "spotify" ;;
+            --get-player-status) get_player_status ;;
         esac
         ;;
     *)
         case $1 in
-            --next)
-                playerctl --player="$current_player" next
-                ;;
-            --previous)
-                playerctl --player="$current_player" previous
-                ;;
-            --play)
-                playerctl --player="$current_player" play
-                ;;
-            --pause)
-                playerctl --player="$current_player" pause
-                ;;
-            --toggle)
-                playerctl --player="$current_player" play-pause
-                ;;
-            --stop)
-                playerctl --player="$current_player" stop
-                ;;
+            --next) playerctl --player="$current_player" next ;;
+            --previous) playerctl --player="$current_player" previous ;;
+            --play) playerctl --player="$current_player" play ;;
+            --pause) playerctl --player="$current_player" pause ;;
+            --toggle) playerctl --player="$current_player" play-pause ;;
+            --stop) playerctl --player="$current_player" stop ;;
             --title)
                 title=$(playerctl --player="$current_player" metadata --format "{{title}}")
                 echo "${title:-Play Something}"
@@ -188,15 +188,13 @@ case $current_player in
                 artist=$(playerctl --player="$current_player" metadata --format "{{artist}}")
                 echo "${artist:-No Artist}"
                 ;;
+            --current-track) playerctl --player=$current_player metadata --format "{{ title }} - {{ artist }}" ;;
             --status)
                 status=$(playerctl --player="$current_player" status)
                 echo "${status:-Stopped}"
                 ;;
-            --player)
-                echo "$current_player"
-                ;;
-            --cover)
-                extract_spotify_cover_art ;;
+            --player) echo "$current_player" ;;
+            --cover) extract_spotify_cover_art ;;
             --position)
                 position=$(playerctl --player="$current_player" position --format "{{ duration(position) }}")
                 echo "${position:-0:00}"
@@ -221,8 +219,7 @@ case $current_player in
                 loop=$(playerctl --player="$current_player" loop)
                 echo "${loop:-None}"
                 ;;
-            --toggle-player)
-                toggle_player "MPD" "spotify"
-                ;;
+            --toggle-player) toggle_player "spotify" "MPD" ;;
+            --get-player-status) get_player_status ;;
         esac
 esac 2>/dev/null

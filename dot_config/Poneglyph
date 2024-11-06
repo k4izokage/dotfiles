@@ -10,3 +10,6 @@ read -r RICE < "$rice_path"/.rice
 
 ##### ---------- Polybar theme path ---------- ######
 poly_dir="$HOME/.config/polybar/${RICE}"
+
+##### ---------- Current source audio player ---------- ######
+current_player="spotify"
