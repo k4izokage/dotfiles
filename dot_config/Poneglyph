@@ -2,6 +2,9 @@
 rice_folder="punk_records"
 rice_path="$HOME/.config/$rice_folder"
 
+##### ---------- Assets directory ---------- ######
+assets_dir="$rice_path/assets"
+
 ##### ---------- System info ---------- ######
 sys_vars_file="$rice_path/system.ini"
 
