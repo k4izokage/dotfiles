@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+NodeHidden=$(bspc query -N -n .hidden -d focused)
+
+if [ -z "$NodeHidden" ]; then
+	bspc node focused -g hidden=on
+else
+	bspc node "$NodeHidden" -g hidden=off
+fi
