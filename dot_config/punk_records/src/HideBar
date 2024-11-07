@@ -1,0 +1,66 @@
+#!/usr/bin/env bash
+#  ██╗  ██╗██╗██████╗ ███████╗    ██████╗  █████╗ ██████╗ 
+#  ██║  ██║██║██╔══██╗██╔════╝    ██╔══██╗██╔══██╗██╔══██╗
+#  ███████║██║██║  ██║█████╗      ██████╔╝███████║██████╔╝
+#  ██╔══██║██║██║  ██║██╔══╝      ██╔══██╗██╔══██║██╔══██╗
+#  ██║  ██║██║██████╔╝███████╗    ██████╔╝██║  ██║██║  ██║
+#  ╚═╝  ╚═╝╚═╝╚═════╝ ╚══════╝    ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝
+#	Script to hide/show polybar or Eww bars.
+
+source "${HOME}"/.config/Poneglyph
+
+# Function to get padding value from Theme
+get_padding() {
+    local var_name="PAD_${1^^}"
+    grep "^${var_name}=" "$theme_cfgfile" | awk -F'=' '{print $2}' | tr -d '"'
+}
+
+# Function to set BSPWM padding
+set_padding() {
+    bspc config top_padding $1
+    bspc config bottom_padding $2
+    bspc config left_padding $3
+    bspc config right_padding $4
+}
+
+is_eww_theme() {
+    case "$current_rice" in
+        "lilith"|"vegapunk")
+            return 0 ;;
+        *)
+            return 1 ;;
+    esac
+}
+
+# Function to handle bars
+handle_bars() {
+    local action=$1
+
+    if is_eww_theme; then
+        if [ "$action" = "hide" ]; then
+            eww -c "$eww_theme_dir" close bar
+        else
+            eww -c "$eww_theme_dir" open bar
+        fi
+    else
+        polybar-msg cmd $action
+    fi
+}
+
+# Main function to hide or unhide bars
+toggle_bars() {
+    if [ "$1" = "hide" ]; then
+        set_padding 0 0 0 0
+        handle_bars hide
+    else
+        set_padding $(get_padding "top") $(get_padding "bottom") $(get_padding "left") $(get_padding "right")
+        handle_bars show
+    fi
+}
+
+# Parse command line argument
+case $1 in
+    -h|--hide) toggle_bars hide ;;
+    -u|--unhide) toggle_bars unhide ;;
+    *) echo "Usage: $0 {-h|--hide|-u|--unhide}" ;;
+esac
