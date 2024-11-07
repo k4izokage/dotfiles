@@ -40,7 +40,7 @@ fi
 #  ╠╩╗╚═╗╠═╝║║║║║║  ║  ║ ║║║║╠╣ ║║ ╦
 #  ╚═╝╚═╝╩  ╚╩╝╩ ╩  ╚═╝╚═╝╝╚╝╚  ╩╚═╝
 
-bspc config external_rules_command "${HOME}"/.config/bspwm/external_rules
+bspc config external_rules_command $external_rules_cfgfile
 
 bspc config split_ratio                   0.5
 bspc config single_monocle                true
@@ -71,13 +71,13 @@ bspc config pointer_motion_interval       5
 "${rice_path}"/src/ApplyNewConfig
 
 # Launch sxhkd daemon
-pidof -q sxhkd || { sxhkd -c "${HOME}"/.config/bspwm/sxhkdrc & }
+pidof -q sxhkd || { sxhkd -c $shxkd_cfgfile & }
 
 # Launch picom
-pidof -q picom || { picom --config "${HOME}"/.config/picom/picom.conf & }
+pidof -q picom || { picom --config $picom_cfgfile & }
 
 # Launch eww daemon
-pidof -q eww || { eww -c "${HOME}"/.config/eww daemon & }
+pidof -q eww || { eww -c $eww_widget_dir daemon & }
 
 # Launch clipboard daemon
 pidof -q greenclip || { greenclip daemon & }

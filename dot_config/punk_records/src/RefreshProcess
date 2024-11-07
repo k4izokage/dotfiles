@@ -24,7 +24,7 @@ source "${HOME}"/.config/Poneglyph
 	sleep 0.30
 
 	# Load random wallpaper depending on the theme you are.
-    feh -z --no-fehbg --bg-fill "$rice_path"/rices/"${RICE}"/walls
+    feh -z --no-fehbg --bg-fill "$rice_path"/rices/"${current_rice}"/walls
 
 # Explanation: Why are some applications or daemons started or killed here and others in bspwmrc?
 

@@ -1,18 +1,33 @@
-##### ---------- Theme dir ---------- ######
-rice_folder="punk_records"
-rice_path="$HOME/.config/$rice_folder"
-
-##### ---------- Assets directory ---------- ######
-assets_dir="$rice_path/assets"
-
-##### ---------- System info ---------- ######
-sys_vars_file="$rice_path/system.ini"
-
-##### ---------- Current Rice ---------- ######
-read -r RICE < "$rice_path"/.rice
-
-##### ---------- Polybar theme path ---------- ######
-poly_dir="$HOME/.config/polybar/${RICE}"
+##### ---------- Rice directory ---------- ######
+rice_dir_name="punk_records"
+rice_path="$HOME/.config/$rice_dir_name"
+read -r current_rice < "$rice_path"/.rice
+theme_cfgfile="$rice_path/rices/${current_rice}/Theme"
 
 ##### ---------- Current source audio player ---------- ######
 current_player="spotify"
+
+##### ---------- Bspwm, sxhkd, dunst ---------- ######
+external_rules_cfgfile="$HOME/.config/bspwm/external_rules"
+shxkd_cfgfile="$HOME/.config/bspwm/sxhkdrc"
+dunst_cfgfile="$HOME/.config/bspwm/dunstrc"
+
+##### ---------- Polybar ---------- ######
+sys_vars_file="$HOME/.config/polybar/system.ini"
+poly_theme_dir="$HOME/.config/polybar/${current_rice}"
+
+##### ---------- Eww ---------- ######
+eww_theme_dir="$HOME/.config/eww/rices/${current_rice}"
+eww_widget_dir="$HOME/.config/eww/widgets"
+
+##### ---------- Alacritty ---------- #####
+alacritty_cfgfile="$HOME/.config/alacritty/alacritty.toml"
+alacritty_font_cfgfile="$HOME/.config/alacritty/fonts.toml"
+alacritty_color_cfgfile="$HOME/.config/alacritty/rice-colors.toml"
+
+##### ---------- Picom ---------- #####
+picom_cfgfile="$HOME/.config/picom/picom.conf"
+picom_rules_file="$HOME/.config/picom/picom-rules.conf"
+
+##### ---------- Jgmenu ---------- #####
+jgmenu_cfgfile="$HOME/.config/jgmenu/jgmenurc"

@@ -4,7 +4,7 @@
 source "${HOME}"/.config/Poneglyph
 
 # Retrieve 'value' variables (UPPERCASE)
-source "$rice_path"/rices/"${RICE}"/Theme
+source "$rice_path"/rices/"${current_rice}"/Theme
 
 ############################################################
 
@@ -25,11 +25,11 @@ set_bspwm_config() {
 # Terminal configuration
 set_term_config() {
     # Opacity
-    sed -i "$alacritty_conf" \
+    sed -i "$alacritty_cfgfile" \
         -e "s/opacity = .*/opacity = $ALC_OPACITY/g" \
 
     # Font
-    cat > "$alacritty_font_conf" << EOF
+    cat > "$alacritty_font_cfgfile" << EOF
 [font]
 size = $ALC_FONT_SIZE
 
@@ -42,7 +42,7 @@ bold_italic = { family = "$ALC_FONT_FAMILY", style = "Bold Italic" }
 EOF
 
     # Colorscheme
-    cat > "$alacritty_color_conf" << EOF
+    cat > "$alacritty_color_cfgfile" << EOF
 # Default colors
 [colors.primary]
 background = "${BG}"
@@ -79,7 +79,7 @@ EOF
 
 # Set compositor configuration
 set_picom_config() {
-	sed -i "$picom_conf_file" \
+	sed -i "$picom_cfgfile" \
 		-e "s/shadow = .*/shadow = ${P_SHADOW};/" \
 		-e "s/shadow-color = .*/shadow-color = \"${SHADOW_COLOR}\"/" \
 		-e "s/fading = .*/fading = ${P_FADE};/" \
@@ -102,7 +102,7 @@ set_dunst_config() {
 	local OFFSET_TOP=$((BORDER_WIDTH + PAD_TOP + WINDOW_GAP))
     local OFFSET_RIGHT=$((BORDER_WIDTH + PAD_RIGHT + WINDOW_GAP))
 
-    sed -i "$dunst_config_file" \
+    sed -i "$dunst_cfgfile" \
 		-e "s/offset = .*/offset = ${OFFSET_RIGHT}x${OFFSET_TOP}"/g \
         -e "s/transparency = .*/transparency = ${D_TRANSPARENCY}/g" \
         -e "s/frame_color = .*/frame_color = \"${D_FRAME_COLOR}\"/g" \
@@ -110,8 +110,8 @@ set_dunst_config() {
         -e "s/font = .*/font = ${DUNST_FONT}/g" \
         -e "s/foreground='.*'/foreground='${DUNST_FG}'/g"
 
-    sed -i '/urgency_low/Q' "$dunst_config_file"
-    cat >> "$dunst_config_file" <<- _EOF_
+    sed -i '/urgency_low/Q' "$dunst_cfgfile"
+    cat >> "$dunst_cfgfile" <<- _EOF_
 		[urgency_low]
 		timeout = 3
 		background = "${BG}"
@@ -130,7 +130,7 @@ _EOF_
 }
 
 set_eww_colors() {
-    cat > "$eww_color_file" << EOF
+    cat > "$eww_widget_dir/colors.scss" << EOF
 \$bg: ${BG};
 \$bg-alt: ${BGALT};
 \$fg: ${FG};
@@ -147,7 +147,7 @@ EOF
 }
 
 set_jgmenu_config() {
-	sed -i "$jgmenu_conf_file" \
+	sed -i "$jgmenu_cfgfile" \
 		-e "s/color_menu_bg = .*/color_menu_bg = ${J_MENU_BGC}/" \
 		-e "s/color_norm_fg = .*/color_norm_fg = ${J_NORM_FGC}/" \
 		-e "s/color_sel_bg = .*/color_sel_bg = ${J_SEL_BGC}/" \
@@ -157,12 +157,12 @@ set_jgmenu_config() {
 
 launch_theme() {
     # Launch dunst notification daemon
-	dunst -config $dunst_config_file &
+	dunst -config $dunst_cfgfile &
 
     # Launch polybar
 	for mon in $(polybar --list-monitors | cut -d":" -f1); do
         for module in "${POLYBAR_MODULES[@]}"; do
-            (MONITOR=$mon polybar -q "$module" -c "${poly_dir}/config.ini")&
+            (MONITOR=$mon polybar -q "$module" -c "${poly_theme_dir}/config.ini")&
         done
     done
 }
