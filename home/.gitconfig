@@ -1,6 +1,7 @@
 [user]
   name = Kaizokage
-  email = k4izokage@gmail.com
+  email = kaizokage@duck.com
+	signingkey = 125490BC10108ED1
 [alias]
   a = add
   b = branch
@@ -20,3 +21,5 @@
   bt = "!git for-each-ref --sort='-authordate' --format='%(authordate)%09%(objectname:short)%09%(refname)' refs/heads | sed -e 's-refs/heads/--'"   # list branches sorted by last modified
   la = "!git config -l | grep alias | cut -c 7-"   # list aliases
   lg = log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit   # beautiful git log
+[commit]
+	gpgsign = true
