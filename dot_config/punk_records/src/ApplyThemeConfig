@@ -1,12 +1,35 @@
 #!/usr/bin/env bash
 
 # Retrieve 'path' variables (lowercase)
-source "${HOME}"/.config/Poneglyph
+source "${HOME}"/.config/punk_records/Poneglyph
 
 # Retrieve 'value' variables (UPPERCASE)
-source "$rice_path"/rices/"${current_rice}"/Theme
+source "$rice_path"/rices/"${CURRENT_RICE}"/Theme
 
 ############################################################
+
+# Wallpaper engine
+load_wallpaper() {
+	if pidof -x xwinwrap; then
+		pkill xwinwrap
+	fi
+
+	case $WALL_ENGINE in
+		# Set a random wallpaper from rice directory
+		"Theme") feh -z --no-fehbg --bg-fill $theme_wall_dir ;;
+
+		# Set a random wallpaper from the directory you specified
+		"CustomDir") feh -z --no-fehbg --bg-fill "${HOME}"/Pictures/Wallpaper ;;
+
+		# Sets a specific image as wallpaper
+		"CustomImage") feh --no-fehbg --bg-fill "${HOME}"/Pictures/Wallpaper/Example.png ;;
+
+		# Set an animated wallpaper. "mp4, mkv, gif"
+		"CustomAnimated") AnimatedWall --start "{$HOME}/Videos/AnimatedWall/Example.mp4" ;;
+
+		*) feh -z --no-fehbg --bg-fill $theme_wall_dir ;;
+	esac
+}
 
 # Set bspwm configuration
 set_bspwm_config() {
@@ -19,7 +42,6 @@ set_bspwm_config() {
     bspc config normal_border_color "${NORMAL_BC}"
     bspc config focused_border_color "${FOCUSED_BC}"
     bspc config presel_feedback_color "${PRESEL_FEEDBACK_COLOR}"
-
 }
 
 # Terminal configuration
@@ -81,14 +103,16 @@ EOF
 set_picom_config() {
 	sed -i "$picom_cfgfile" \
 		-e "s/shadow = .*/shadow = ${P_SHADOW};/" \
-		-e "s/shadow-color = .*/shadow-color = \"${SHADOW_COLOR}\"/" \
+		-e "s/shadow-color = .*/shadow-color = \"${P_SHADOW_COLOR}\"/" \
+		-e "s/shadow-offset-x = .*/shadow-offset-x = \"${P_SHADOW_OFFSET}\"/" \
+		-e "s/shadow-offset-y = .*/shadow-offset-y = \"${P_SHADOW_OFFSET}\"/" \
 		-e "s/fading = .*/fading = ${P_FADE};/" \
 		-e "s/corner-radius = .*/corner-radius = ${P_CORNER_RADIUS}/"
 
 	sed -i "$picom_rules_file" \
 		-e "95s/	opacity = .*/	opacity = 1;/"
 
-	if [[ "$ANIMATION" = "true" ]]; then
+	if [[ "$P_ANIMATION" = "true" ]]; then
 		sed -i "$picom_rules_file" \
 			-e '/picom-animations/c\@include "picom-animations.conf"'
 	else
@@ -155,16 +179,31 @@ set_jgmenu_config() {
 		-e "s/color_sep_fg = .*/color_sep_fg = ${J_SEP_FG}/"
 }
 
-launch_theme() {
-    # Launch dunst notification daemon
+launch_dunst() {
 	dunst -config $dunst_cfgfile &
+	sleep 0.1
+}
 
-    # Launch polybar
+launch_polybar() {
 	for mon in $(polybar --list-monitors | cut -d":" -f1); do
         for module in "${POLYBAR_MODULES[@]}"; do
             (MONITOR=$mon polybar -q "$module" -c "${poly_theme_dir}/config.ini")&
         done
     done
+}
+
+launch_eww_bar() {
+	eww -c $eww_theme_dir open --toggle bar
+
+    # Fix eww,  when entering fullscreen state
+	bspc subscribe node_state | while read -r _ _ _ _ state flag; do
+        [[ "$state" == "fullscreen" ]] || continue
+            if [ "$flag" == on ]; then
+                HideBar -h
+            else
+                HideBar -u
+            fi
+    done &
 }
 
 ##########################################
@@ -174,6 +213,9 @@ launch_theme() {
 # Terminate existing processes if necessary.
 . "${rice_path}"/src/RefreshProcess
 
+# Wallpaper engine
+load_wallpaper
+
 # Apply new "bspwm, terminal, picom, dunst, eww, jgmenu" configurations
 set_bspwm_config
 set_term_config
@@ -182,5 +224,12 @@ set_dunst_config
 set_eww_colors
 set_jgmenu_config
 
-# Launch_theme
-launch_theme
+# Launch dunst notification daemon
+launch_dunst
+
+# Launch polybar or eww bar
+if is_eww_theme; then
+	launch_eww_bar
+else
+	launch_polybar
+fi

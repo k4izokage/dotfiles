@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-source "${HOME}"/.config/Poneglyph
+source "${HOME}"/.config/punk_records/Poneglyph
 
 # Create system.ini
 if [[ ! -f "$sys_vars_file" ]]; then

@@ -7,7 +7,7 @@
 #  ╚═╝  ╚═╝╚═╝╚═════╝ ╚══════╝    ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝
 #	Script to hide/show polybar or Eww bars.
 
-source "${HOME}"/.config/Poneglyph
+source "${HOME}"/.config/punk_records/Poneglyph
 
 # Function to get padding value from Theme
 get_padding() {
@@ -21,15 +21,6 @@ set_padding() {
     bspc config bottom_padding $2
     bspc config left_padding $3
     bspc config right_padding $4
-}
-
-is_eww_theme() {
-    case "$current_rice" in
-        "lilith"|"vegapunk")
-            return 0 ;;
-        *)
-            return 1 ;;
-    esac
 }
 
 # Function to handle bars

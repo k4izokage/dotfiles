@@ -10,7 +10,7 @@
 ########### Def vars ###########
 
 # Retrieve the $rice_path variables
-source "${HOME}"/.config/Poneglyph
+source "${HOME}"/.config/punk_records/Poneglyph
 
 # Set environment variables
 export PATH="$rice_path/src:$PATH"
@@ -67,11 +67,11 @@ bspc config pointer_motion_interval       5
 # Set system vars
 "${rice_path}"/src/SetSysVars
 
-# Load current theme
-"${rice_path}"/src/ApplyNewConfig
-
 # Launch sxhkd daemon
 pidof -q sxhkd || { sxhkd -c $shxkd_cfgfile & }
+
+# Load current theme
+"${rice_path}"/src/ApplyThemeConfig
 
 # Launch picom
 pidof -q picom || { picom --config $picom_cfgfile & }
