@@ -51,52 +51,43 @@ set_term_config() {
         -e "s/opacity = .*/opacity = $ALC_OPACITY/g" \
 
     # Font
-    cat > "$alacritty_font_cfgfile" << EOF
-[font]
-size = $ALC_FONT_SIZE
-
-builtin_box_drawing = true
-
-normal = { family = "$ALC_FONT_FAMILY", style = "Regular" }
-bold = { family = "$ALC_FONT_FAMILY", style = "Bold" }
-italic = { family = "$ALC_FONT_FAMILY", style = "Italic" }
-bold_italic = { family = "$ALC_FONT_FAMILY", style = "Bold Italic" }
-EOF
-
+	sed -i "$alacritty_font_cfgfile" \
+		-e "s/size = .*/size = $ALC_FONT_SIZE/" \
+		-e "s/family = .*/family = \"$ALC_FONT_FAMILY\"/"
     # Colorscheme
-    cat > "$alacritty_color_cfgfile" << EOF
-# Default colors
-[colors.primary]
-background = "${BG}"
-foreground = "${FG}"
+    cat > "$alacritty_color_cfgfile" <<-EOF
+		# Default colors
+		[colors.primary]
+		background = "${BG}"
+		foreground = "${FG}"
 
-# Cursor colors
-[colors.cursor]
-cursor = "${CURSOR}"
-text = "${TEXT}"
+		# Cursor colors
+		[colors.cursor]
+		cursor = "${CURSOR}"
+		text = "${TEXT}"
 
-# Normal colors
-[colors.normal]
-black = "${BLACK}"
-red = "${RED}"
-green = "${GREEN}"
-yellow = "${YELLOW}"
-blue =  "${BLUE}"
-magenta = "${MAGENTA}"
-cyan = "${CYAN}"
-white = "${WHITE}"
+		# Normal colors
+		[colors.normal]
+		black = "${BLACK}"
+		red = "${RED}"
+		green = "${GREEN}"
+		yellow = "${YELLOW}"
+		blue =  "${BLUE}"
+		magenta = "${MAGENTA}"
+		cyan = "${CYAN}"
+		white = "${WHITE}"
 
-# Bright colors
-[colors.bright]
-black = "${BLACKB}"
-red = "${REDB}"
-green = "${GREENB}"
-yellow = "${YELLOWB}"
-blue = "${BLUEB}"
-magenta = "${MAGENTAB}"
-cyan = "${CYANB}"
-white = "${WHITEB}"
-EOF
+		# Bright colors
+		[colors.bright]
+		black = "${BLACKB}"
+		red = "${REDB}"
+		green = "${GREENB}"
+		yellow = "${YELLOWB}"
+		blue = "${BLUEB}"
+		magenta = "${MAGENTAB}"
+		cyan = "${CYANB}"
+		white = "${WHITEB}"
+	EOF
 }
 
 # Set compositor configuration

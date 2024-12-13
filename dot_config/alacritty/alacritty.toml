@@ -19,19 +19,10 @@ decorations = "none"
 dynamic_title = true
 opacity = 1.0
 dynamic_padding = true
-startup_mode = "Windowed"
 
 [window.padding]
-x = 20
-y = 20
-
-[window.class]
-general = "Alacritty"
-instance = "Alacritty"
-
-[window.dimensions]
-columns = 82
-lines = 25
+x = 15
+y = 15
 
 [scrolling]
 history = 10000
