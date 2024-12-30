@@ -9,7 +9,7 @@ fi
 
 change_rice_cmd=""
 for i in "${!RICE_NAMES[@]}"; do
-	first_cmd="echo '${RICE_NAMES[i]}' > $rice_path/current/.rice"
+	first_cmd="echo '${RICE_NAMES[i]}' > $rice_path/src/current/.rice"
 	second_cmd="ApplyThemeConfig"
 
 	change_rice_cmd+="${RICE_NAMES[i]^}, $first_cmd; $second_cmd,${RICE_ICONS[i]}"$'\n'
@@ -67,7 +67,6 @@ Calendar,OpenApps --calendar,office-calendar
 
 ^tag(wm)
 Keybinds,KeybindingsHelp,preferences-desktop-keyboard-shortcuts
-Multi-monitor,xrandr --output eDP-1 --auto --output HDMI-1 --auto --right-of eDP-1,display
 Restart WM,bspc wm -r,system-reboot
 Quit,bspc quit,system-log-out
 
@@ -75,5 +74,4 @@ Quit,bspc quit,system-log-out
 Block computer,physlock -d,changes-prevent
 Reboot,systemctl reboot,system-reboot
 Shutdown,systemctl poweroff,system-shutdown
-
 EOF

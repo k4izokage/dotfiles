@@ -13,7 +13,7 @@
 source "${HOME}"/.config/punk_records/Poneglyph
 
 # Set environment variables
-export PATH="$rice_path/src:$PATH"
+export PATH="$script_bin_path:$PATH"
 export XDG_CURRENT_DESKTOP='bspwm'
 
 ## Fix java applications
@@ -23,18 +23,42 @@ export _JAVA_AWT_WM_NONREPARENTING=1
 #  ║║║║ ║╠╦╝╠╩╗╚═╗╠═╝╠═╣║  ║╣ ╚═╗
 #  ╚╩╝╚═╝╩╚═╩ ╩╚═╝╩  ╩ ╩╚═╝╚═╝╚═╝
 
-# Get the name of the primary monitor
-INTERNAL_MONITOR=$(xrandr | grep "connected primary" | awk '{print $1}')
-# Get the list of connected monitors excluding the primary monitor
-EXTERNAL_MONITOR=$(xrandr | grep "connected" | grep -v "primary" | awk '{print $1}')
+# Workspace layout:
+#  1.  file   : File manager applications (Thunar, Ranger, Yazi, etc.)
+#  2.  web    : Web browsers (Firefox, Google-Chrome, etc.)
+#  3.  code   : Editors/IDEs (VSCode, Neovim, etc.)
+#  4.  term   : Terminals (Alacritty, Kitty, etc.)
+#  5.  chat   : Communication apps (Discord, Telegram, Slack, etc.)
+#  6.  ref    : References, notes, and documents (PDF, Obsidian, etc.)
+#  7.  extra  : Additional terminals (debugging, logs, or backups)
+#  8.  chill  : Media players or entertainment (Spotify, MPV, etc.)
+#  9.  tool   : Specialized tools (VirtualBox, Blender, OBS, etc.)
+#  10. misc   : Miscellaneous usage (scripts, system stats, or testing)
 
-if [[ $(xrandr -q | grep "${EXTERNAL_MONITOR} connected") ]]; then
-	bspc monitor "$INTERNAL_MONITOR" -d '1' '2' '3' '4' '5' '6' '7' '8' 
-	bspc monitor "$EXTERNAL_MONITOR" -d '1' '2' '3' '4' '5' '6' '7' '8' 
-	bspc wm -O  "$INTERNAL_MONITOR" "$EXTERNAL_MONITOR"
-else
-	bspc monitor "$INTERNAL_MONITOR" -d '1' '2' '3' '4' '5' '6' '7' '8'
-fi
+# Get the name of the primary monitor
+primary_monitor=$(xrandr | grep "connected primary" | awk '{print $1}')
+# Get the list of connected monitors excluding the primary monitor
+external_monitors=($(xrandr | awk '/ connected / && !/ primary/ {print $1}'))
+
+case "${#external_monitors[@]}" in
+	0)
+        # Use primary monitor with default 8 workspaces
+		bspc monitor "$primary_monitor" -d 'file' 'web' 'code' 'term' 'chat' 'chill' 'tool' 'misc'
+		;;
+	1)
+        # Two monitors: Allocate workspaces evenly between primary and one external monitor
+		bspc monitor "$primary_monitor" -d 'file' 'web' 'code' 'term' 'chat'
+		bspc monitor "${external_monitors[0]}" -d 'ref' 'extra' 'chill' 'tool' 'misc'
+		bspc wm -O "$primary_monitor" "${external_monitors[0]}"
+		;;
+	2)
+        # Three monitors: Assign workspaces in a 4-3-3 distribution
+		bspc monitor "${external_monitors[0]}" -d 'file' 'web' 'chat' 'ref'
+		bspc monitor "$primary_monitor" -d 'code' 'term' 'tool'
+		bspc monitor "${external_monitors[1]}" -d 'extra' 'chill' 'misc'
+		bspc wm -O "${external_monitors[0]}" "$primary_monitor" "${external_monitors[1]}"
+		;;
+esac
 
 #  ╔╗ ╔═╗╔═╗╦ ╦╔╦╗  ╔═╗╔═╗╔╗╔╔═╗╦╔═╗
 #  ╠╩╗╚═╗╠═╝║║║║║║  ║  ║ ║║║║╠╣ ║║ ╦
@@ -64,14 +88,11 @@ bspc config pointer_motion_interval       5
 #  ╠═╣║ ║ ║ ║ ║╚═╗ ║ ╠═╣╠╦╝ ║
 #  ╩ ╩╚═╝ ╩ ╚═╝╚═╝ ╩ ╩ ╩╩╚═ ╩
 
-# Set system vars
-"${rice_path}"/src/SetSysVars
-
 # Launch sxhkd daemon
 pidof -q sxhkd || { sxhkd -c $shxkd_cfgfile & }
 
 # Load current theme
-"${rice_path}"/src/ApplyThemeConfig
+"${script_bin_path}"/ApplyThemeConfig
 
 # Launch picom
 pidof -q picom || { picom --config $picom_cfgfile & }

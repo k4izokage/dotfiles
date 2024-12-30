@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Author : rxyhn
 
-asset_dir="$HOME/.config/punk_records/assets"
+asset_dir="$HOME/.config/punk_records/src/assets"
 
 BRIGHTNESS_STEPS=5
 

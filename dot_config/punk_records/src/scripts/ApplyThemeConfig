@@ -19,13 +19,13 @@ load_wallpaper() {
 		"Theme") feh -z --no-fehbg --bg-fill $theme_wall_dir ;;
 
 		# Set a random wallpaper from the directory you specified
-		"CustomDir") feh -z --no-fehbg --bg-fill "${HOME}"/Pictures/Wallpaper ;;
+		"CustomDir") feh -z --no-fehbg --bg-fill "$CUSTOM_DIR" ;;
 
 		# Sets a specific image as wallpaper
-		"CustomImage") feh --no-fehbg --bg-fill "${HOME}"/Pictures/Wallpaper/Example.png ;;
+		"CustomImage") feh --no-fehbg --bg-fill "$CUSTOM_WALL" ;;
 
 		# Set an animated wallpaper. "mp4, mkv, gif"
-		"CustomAnimated") AnimatedWall --start "{$HOME}/Videos/AnimatedWall/Example.mp4" ;;
+		"CustomAnimated") AnimatedWall --start "$CUSTOM_ANIMATED" ;;
 
 		*) feh -z --no-fehbg --bg-fill $theme_wall_dir ;;
 	esac
@@ -46,14 +46,11 @@ set_bspwm_config() {
 
 # Terminal configuration
 set_term_config() {
-    # Opacity
-    sed -i "$alacritty_cfgfile" \
-        -e "s/opacity = .*/opacity = $ALC_OPACITY/g" \
-
     # Font
-	sed -i "$alacritty_font_cfgfile" \
+    sed -i "$alacritty_cfgfile" \
 		-e "s/size = .*/size = $ALC_FONT_SIZE/" \
 		-e "s/family = .*/family = \"$ALC_FONT_FAMILY\"/"
+		
     # Colorscheme
     cat > "$alacritty_color_cfgfile" <<-EOF
 		# Default colors
@@ -93,23 +90,20 @@ set_term_config() {
 # Set compositor configuration
 set_picom_config() {
 	sed -i "$picom_cfgfile" \
-		-e "s/shadow = .*/shadow = ${P_SHADOW};/" \
-		-e "s/shadow-color = .*/shadow-color = \"${P_SHADOW_COLOR}\"/" \
-		-e "s/shadow-offset-x = .*/shadow-offset-x = \"${P_SHADOW_OFFSET}\"/" \
-		-e "s/shadow-offset-y = .*/shadow-offset-y = \"${P_SHADOW_OFFSET}\"/" \
-		-e "s/fading = .*/fading = ${P_FADE};/" \
-		-e "s/corner-radius = .*/corner-radius = ${P_CORNER_RADIUS}/"
-
-	sed -i "$picom_rules_file" \
-		-e "95s/	opacity = .*/	opacity = 1;/"
-
-	if [[ "$P_ANIMATION" = "true" ]]; then
-		sed -i "$picom_rules_file" \
-			-e '/picom-animations/c\@include "picom-animations.conf"'
-	else
-		sed -i "$picom_rules_file" \
-			-e '/picom-animations/c\#@include "picom-animations.conf"'
-	fi
+		-e "s/^shadow-color = .*/shadow-color = \"${P_SHADOW_COLOR}\";/" \
+		-e "s/^shadow-offset-x = .*/shadow-offset-x = ${P_SHADOW_OFFSET};/" \
+		-e "s/^shadow-offset-y = .*/shadow-offset-y = ${P_SHADOW_OFFSET};/" \
+		-e "s/^corner-radius = .*/corner-radius = ${P_CORNER_RADIUS};/" \
+		-e "/#-normal-shadow/s/.*#-/\t\tshadow = ${P_SHADOW};\t#-/" \
+		-e "/#-term-opacity/s/.*#-/\t\topacity = ${P_TERM_OPACITY};\t#-/" \
+		-e "/#-term-blur/s/.*#-/\t\tblur-background = ${P_TERM_BLUR};\t#-/" \
+		-e "/picom-animations/c\\${P_ANIMATION}include \"picom-animations.conf\""
+	
+	sed -i "$picom_animation_file" \
+		-e "/#-dunst-close-preset/s/.*#-/\t\t\tpreset = \"fly-out\";\t#-/" \
+		-e "/#-dunst-close-direction/s/.*#-/\t\t\tdirection = \"up\";\t#-/" \
+		-e "/#-dunst-open-preset/s/.*#-/\t\t\tpreset = \"fly-in\";\t#-/" \
+		-e "/#-dunst-open-direction/s/.*#-/\t\t\tdirection = \"up\";\t#-/"
 }
 
 # Set dunst notification daemon config
@@ -145,19 +139,25 @@ _EOF_
 }
 
 set_eww_colors() {
-    cat > "$eww_widget_dir/colors.scss" << EOF
-\$bg: ${BG};
-\$bg-alt: ${BGALT};
-\$fg: ${FG};
-\$black: ${BLACKB};
-\$gray: ${GRAY};
-\$red: ${RED};
-\$green: ${GREEN};
-\$yellow: ${YELLOW};
-\$blue: ${BLUE};
-\$magenta: ${MAGENTA};
-\$cyan: ${CYAN};
-\$archicon: ${ARCHICON};
+    cat > "$eww_widget_dir/variables.scss" <<-EOF
+		// Colors
+		\$bg: ${BG};
+		\$bg-alt: ${BGALT};
+		\$fg: ${FG};
+		\$black: ${BLACK};
+		\$gray: ${GRAY};
+		\$red: ${RED};
+		\$green: ${GREEN};
+		\$yellow: ${YELLOW};
+		\$blue: ${BLUE};
+		\$magenta: ${MAGENTA};
+		\$cyan: ${CYAN};
+		\$white: ${WHITE};
+		\$archicon: ${ARCHICON};
+
+		// Values
+		\$border-color: ${E_BORDER_COLOR};
+		\$border-radius: ${E_BORDER_RADIUS};
 EOF
 }
 
@@ -176,6 +176,9 @@ launch_dunst() {
 }
 
 launch_polybar() {
+	# Update system vars (list of network interface, connected monitors...)
+	. "${script_bin_path}"/SetSysVars
+
 	for mon in $(polybar --list-monitors | cut -d":" -f1); do
         for module in "${POLYBAR_MODULES[@]}"; do
             (MONITOR=$mon polybar -q "$module" -c "${poly_theme_dir}/config.ini")&
@@ -202,7 +205,7 @@ launch_eww_bar() {
 ##########################################
 
 # Terminate existing processes if necessary.
-. "${rice_path}"/src/RefreshProcess
+. "${script_bin_path}"/RefreshProcess
 
 # Wallpaper engine
 load_wallpaper
@@ -217,6 +220,9 @@ set_jgmenu_config
 
 # Launch dunst notification daemon
 launch_dunst
+
+# Generate context menu
+. "${script_bin_path}"/GenContextMenu
 
 # Launch polybar or eww bar
 if is_eww_theme; then

@@ -30,7 +30,7 @@ switch_player() {
     next_value="${players[$next_index]}"
 
     # Update current player
-    echo "$next_value" > $rice_path/current/.music_player
+    echo "$next_value" > $rice_path/src/current/.music_player
 }
 
 # Extract and save the cover art based on the currently playing song's metadata.
@@ -38,7 +38,7 @@ switch_player() {
 extract_cover_art() {
     # Temporary file paths for cover art
     cover=/tmp/cover.png
-    backup_cover=$rice_path/assets/fallback.webp
+    backup_cover=$asset_bin_path/fallback.webp
 
     # File to store the last song played
     lastsong_file="/tmp/last_song.txt"

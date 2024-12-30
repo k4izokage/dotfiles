@@ -7,13 +7,17 @@ rice_path="$HOME/.config/punk_records"
 RICE_NAMES=("shaka" "lilith" "edison" "pythagoras" "atlas" "york" "vegapunk" "kaizokage")
 RICE_ICONS=("aqualung" "application-community" "atom" "microscope" "security-low" "among-us" "alienarena" "emblem-dropbox-app")
 
+#--- System's PATH environment ---#
+script_bin_path="$rice_path/src/scripts"
+asset_bin_path="$rice_path/src/assets"
+
 ################################################
 #     Dynamically retrieve current configs     #
 ################################################
 
-read -r CURRENT_RICE < "$rice_path"/current/.rice
-read -r CURRENT_PLAYER < "$rice_path"/current/.music_player
-read -r MUSIC_MODULE < "$rice_path"/current/.music_module
+read -r CURRENT_RICE < "$rice_path"/src/current/.rice
+read -r CURRENT_PLAYER < "$rice_path"/src/current/.music_player
+read -r MUSIC_MODULE < "$rice_path"/src/current/.music_module
 
 ################################################
 #            Paths for config files            #
@@ -38,19 +42,18 @@ eww_widget_dir="$HOME/.config/eww/widgets"
 
 #--- Alacritty ---#
 alacritty_cfgfile="$HOME/.config/alacritty/alacritty.toml"
-alacritty_font_cfgfile="$HOME/.config/alacritty/fonts.toml"
 alacritty_color_cfgfile="$HOME/.config/alacritty/rice-colors.toml"
 
 #--- Picom ---#
 picom_cfgfile="$HOME/.config/picom/picom.conf"
-picom_rules_file="$HOME/.config/picom/picom-rules.conf"
+picom_animation_file="$HOME/.config/picom/picom-animations.conf"
 
 #--- Jgmenu ---#
 jgmenu_cfgfile="$HOME/.config/jgmenu/jgmenurc"
 jg_menu_file="$HOME/.config/jgmenu/menu.csv"
 
 ################################################
-#              Utility Functions               #
+#            Utility Vars & Funcs              #
 ################################################
 
 is_eww_theme() {
