@@ -7,13 +7,11 @@
 #  ██████╔╝███████║██║     ╚███╔███╔╝██║ ╚═╝ ██║██║  ██║╚██████╗
 #  ╚═════╝ ╚══════╝╚═╝      ╚══╝╚══╝ ╚═╝     ╚═╝╚═╝  ╚═╝ ╚═════╝
 
-########### Def vars ###########
-
-# Retrieve the $rice_path variables
-source "${HOME}"/.config/punk_records/Poneglyph
+daemon_cfg_dir="$HOME/.config/bspwm/daemons"
+script_bin="$HOME/.config/bspwm/scripts"
 
 # Set environment variables
-export PATH="$script_bin_path:$PATH"
+export PATH="$script_bin:$PATH"
 export XDG_CURRENT_DESKTOP='bspwm'
 
 ## Fix java applications
@@ -41,37 +39,37 @@ primary_monitor=$(xrandr | grep "connected primary" | awk '{print $1}')
 external_monitors=($(xrandr | awk '/ connected / && !/ primary/ {print $1}'))
 
 case "${#external_monitors[@]}" in
-	0)
-        # Use primary monitor with default 8 workspaces
-		bspc monitor "$primary_monitor" -d 'file' 'web' 'code' 'term' 'chat' 'chill' 'tool' 'misc'
-		;;
-	1)
-        # Two monitors: Allocate workspaces evenly between primary and one external monitor
-		bspc monitor "$primary_monitor" -d 'file' 'web' 'code' 'term' 'chat'
-		bspc monitor "${external_monitors[0]}" -d 'ref' 'extra' 'chill' 'tool' 'misc'
-		bspc wm -O "$primary_monitor" "${external_monitors[0]}"
-		;;
-	2)
-        # Three monitors: Assign workspaces in a 4-3-3 distribution
-		bspc monitor "${external_monitors[0]}" -d 'file' 'web' 'chat' 'ref'
-		bspc monitor "$primary_monitor" -d 'code' 'term' 'tool'
-		bspc monitor "${external_monitors[1]}" -d 'extra' 'chill' 'misc'
-		bspc wm -O "${external_monitors[0]}" "$primary_monitor" "${external_monitors[1]}"
-		;;
+  0)
+    # Use primary monitor with default 8 workspaces
+    bspc monitor "$primary_monitor" -d 'file' 'web' 'code' 'term' 'chat' 'chill' 'tool' 'misc'
+    ;;
+  1)
+    # Two monitors: Allocate workspaces evenly between primary and one external monitor
+    bspc monitor "$primary_monitor" -d 'file' 'web' 'code' 'term' 'chat'
+    bspc monitor "${external_monitors[0]}" -d 'ref' 'extra' 'chill' 'tool' 'misc'
+    bspc wm -O "$primary_monitor" "${external_monitors[0]}"
+    ;;
+  2)
+    # Three monitors: Assign workspaces in a 4-3-3 distribution
+    bspc monitor "${external_monitors[0]}" -d 'file' 'web' 'chat' 'ref'
+    bspc monitor "$primary_monitor" -d 'code' 'term' 'tool'
+    bspc monitor "${external_monitors[1]}" -d 'extra' 'chill' 'misc'
+    bspc wm -O "${external_monitors[0]}" "$primary_monitor" "${external_monitors[1]}"
+    ;;
 esac
 
 #  ╔╗ ╔═╗╔═╗╦ ╦╔╦╗  ╔═╗╔═╗╔╗╔╔═╗╦╔═╗
 #  ╠╩╗╚═╗╠═╝║║║║║║  ║  ║ ║║║║╠╣ ║║ ╦
 #  ╚═╝╚═╝╩  ╚╩╝╩ ╩  ╚═╝╚═╝╝╚╝╚  ╩╚═╝
 
-bspc config external_rules_command $external_rules_cfgfile
+bspc config external_rules_command "$script_bin"/ExternalRules
 
 bspc config split_ratio                   0.5
 bspc config single_monocle                true
 bspc config borderless_monocle            false
 bspc config gapless_monocle               false
 bspc config focus_follows_pointer         true
-bspc config center_pseudo_tiled			  true
+bspc config center_pseudo_tiled           true
 bspc config pointer_modifier              mod4 
 bspc config pointer_action1               move 
 bspc config pointer_action2               resize_side 
@@ -79,32 +77,34 @@ bspc config pointer_action3               resize_corner
 bspc config automatic_scheme              longest_side
 bspc config initial_polarity              second_child
 bspc config remove_disabled_monitors      true 
-bspc config remove_unplugged_monitors 	  true
+bspc config remove_unplugged_monitors     true
 bspc config merge_overlapping_monitors    true
 bspc config pointer_motion_interval       5
-#bspc wm --adopt-orphans
 
 #  ╔═╗╦ ╦╔╦╗╔═╗╔═╗╔╦╗╔═╗╦═╗╔╦╗
 #  ╠═╣║ ║ ║ ║ ║╚═╗ ║ ╠═╣╠╦╝ ║
 #  ╩ ╩╚═╝ ╩ ╚═╝╚═╝ ╩ ╩ ╩╩╚═ ╩
 
+# Set system vars for polybar
+. "${script_bin}"/SetSysVars
+
 # Launch sxhkd daemon
-pidof -q sxhkd || { sxhkd -c $shxkd_cfgfile & }
+pidof -q sxhkd || { sxhkd -c $daemon_cfg_dir/sxhkdrc & }
 
 # Load current theme
-"${script_bin_path}"/ApplyThemeConfig
+. "${script_bin}"/LoadTheme
 
 # Launch picom
-pidof -q picom || { picom --config $picom_cfgfile & }
+pidof -q picom || { picom --config $daemon_cfg_dir/picom/picom.conf & }
+
+# Launch xsettingsd
+pidof -q xsettings || { xsettingsd --config="$daemon_cfg_dir/xsettingsd.conf" >/dev/null 2>&1 & }
 
 # Launch eww daemon
-pidof -q eww || { eww -c $eww_widget_dir daemon & }
+pidof -q eww || { eww -c $daemon_cfg_dir/eww/widgets daemon & }
 
 # Launch clipboard daemon
 pidof -q greenclip || { greenclip daemon & }
 
 # Launch polkit
 pidof -q polkit-gnome-authentication-agent-1 || { /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1 & }
-
-# Fix cursor
-xsetroot -cursor_name left_ptr
